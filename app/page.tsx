@@ -11,11 +11,8 @@ export default function LandingPage() {
   const featureRefs = useRef([]);
   featureRefs.current = [];
 
-  const addToFeatureRefs = (el) => {
-    if (el && !featureRefs.current.includes(el)) {
-      featureRefs.current.push(el);
-    }
-  };
+
+  
 
   useEffect(() => {
     // Hero text animation
@@ -77,7 +74,6 @@ export default function LandingPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div
-              ref={addToFeatureRefs}
               className="flex flex-col items-center text-center p-8 border rounded-lg shadow-lg"
             >
               <svg
@@ -101,7 +97,6 @@ export default function LandingPage() {
             </div>
 
             <div
-              ref={addToFeatureRefs}
               className="flex flex-col items-center text-center p-8 border rounded-lg shadow-lg"
             >
               <svg
@@ -125,7 +120,6 @@ export default function LandingPage() {
             </div>
 
             <div
-              ref={addToFeatureRefs}
               className="flex flex-col items-center text-center p-8 border rounded-lg shadow-lg"
             >
               <svg
