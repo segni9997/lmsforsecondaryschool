@@ -2,19 +2,17 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-     Hello LMS
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+    <div className="grid grid-cols-1 w-1/3  ">
+     <div className="p-4 my-10">
+      <form className="flex flex-col space-y-4 my-44">
+        <input type="text" placeholder="Full Name" className="input input-bordered w-full" />
+        <input type="email" placeholder="Email" className="input input-bordered w-full" />
+        <input type="number" placeholder="Amount" className="input input-bordered w-full" />
+        
+        <button className="btn btn-primary w-full">Proceed to Payment</button>
+      </form>
+    </div>
+      {/* <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
           href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
@@ -60,7 +58,7 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
-      </footer>
+      </footer> */}
     </div>
   );
 }
