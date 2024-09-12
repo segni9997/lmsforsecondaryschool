@@ -11,7 +11,11 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-      },
+      }, 
+      backgroundImage: {
+        'hero-pattern': "url('/assets/images/background_image.jpg')",
+        'ethiostudent': "url('/assets/images/ethiostudent.jpg')",
+      }
     },
   },
   plugins: [require('daisyui')],
