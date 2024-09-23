@@ -22,7 +22,7 @@ export default function DashboardLayout({
           <Menu/>
         </div>
         {/* right */}
-        <div className="w-[86%] md:w-[92%] lg:w-[84%] bg-[#F7F8FA] ">
+        <div className="w-[86%] md:w-[92%] lg:w-[84%] bg-[#F7F8FA]  ">
           <Navbar/>
           {children}
         </div>
