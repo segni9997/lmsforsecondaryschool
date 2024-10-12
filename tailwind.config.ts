@@ -20,7 +20,7 @@ const config: Config = {
   },
   plugins: [require('daisyui')],
   daisyui :{
-    themes: ['cupcake', 'coffee','aqua']
+    themes: ['cupcake', 'coffee','aqua','dark','lemonade','forest','synthwave']
   }
 };
 export default config;
