@@ -1,44 +1,41 @@
-import FormModal from '@/app/components/FormModal';
-import Pagination from '@/app/components/Pagination'
-import Table from '@/app/components/Table';
-import TableSearch from '@/app/components/TableSearch'
-import {  role, lessonsData } from '@/lib/data';
-import Image from 'next/image'
-import Link from 'next/link';
-import React from 'react'
-type Lessons = {
-    id: number;
-    subject: string;
-    class:string;
-    teacher:string;
-  };
-  
-  const columns = [
-    {
-      header: "Subject Name",
-      accessor: "subject",
+import FormModal from "@/app/components/FormModal";
+import Pagination from "@/app/components/Pagination";
+import Table from "@/app/components/Table";
+import TableSearch from "@/app/components/TableSearch";
+import { role, lessonsData } from "@/lib/data";
+import prisma from "@/lib/prisma";
+import { ITEM_PER_PAGE } from "@/lib/settings";
+import { Class, Lesson, Prisma, Subject, Teacher } from "@prisma/client";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+type LessonsList = Lesson & { subject: Subject } & { class: Class } & {
+  teacher: Teacher;
+};
 
-    },     {
-        header: "Class",
-        accessor: "class",
+const columns = [
+  {
+    header: "Subject Name",
+    accessor: "subject",
+  },
+  {
+    header: "Class",
+    accessor: "class",
+  },
+  {
+    header: "Teacher",
+    accessor: "teacher",
+    className: "hidden md:table-cell",
+  },
 
-      },
-    {
-      header: "Teacher",
-      accessor: "teacher",
-      className: "hidden md:table-cell",
-    },
-
- 
-     
-    {
-      header: "Actions",
-      accessor: "action",
-    },
-  ];
-
-const  LessonsListPage = () => {
-  const renderRow = (item:Lessons)=>(   <tr  key={item.id}
+  {
+    header: "Actions",
+    accessor: "action",
+  },
+];
+const renderRow = (item: LessonsList) => (
+  <tr
+    key={item.id}
     className=" border-b border-gray-200 text-primary-content text-sm hover:bg-accent"
   >
     <td className="flex items-center gap-3 p-3  pl-0 ">
@@ -50,30 +47,78 @@ const  LessonsListPage = () => {
         className="md:hidden xl:block w-10 h-10 rounded-full object-cover"
       /> */}
 
-        <h3 className="font-semibold">{item.subject}</h3>
-     
+      <h3 className="font-semibold">{item.subject.name}</h3>
     </td>
-    <td className="flex flex-col md:flex-row md:table-cell">{item.class}</td>
+    <td className="flex flex-col md:flex-row md:table-cell">
+      {item.class.name}
+    </td>
 
-    <td className="flex flex-col md:flex-row md:table-cell">{item.teacher}</td>
+    <td className="flex flex-col md:flex-row md:table-cell">
+      {item.teacher.name}
+    </td>
     <td>
       <div className="flex items-center gap-2">
-      {role === "admin" && (
-            <>
-              <FormModal table="lesson" type="update" data={item} />
-              <FormModal table="lesson" type="delete" id={item.id} />
-            </>
-          )}
+        {role === "admin" && (
+          <>
+            <FormModal table="lesson" type="update" data={item} />
+            <FormModal table="lesson" type="delete" id={item.id} />
+          </>
+        )}
       </div>
     </td>
   </tr>
-)
-   
-  
+);
+const LessonsListPage = async ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | undefined };
+}) => {
+  const { page, ...queryParams } = searchParams;
+  const p = page ? parseInt(page) : 1;
+  const query: Prisma.LessonWhereInput = {};
+
+  if (queryParams) {
+    for (const [key, value] of Object.entries(queryParams)) {
+      if (value !== undefined) {
+        switch (key) {
+          case "teacherId":
+            query.teacherId = value;
+            break;
+          case "classId":
+            query.classId = parseInt(value);
+            break;
+          case "search":
+            query.OR = [
+              { subject: { name: { contains: value, mode: "insensitive" } } },
+              { teacher: { name: { contains: value, mode: "insensitive" } } },
+            ];
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  }
+  const [lessons, count] = await prisma.$transaction([
+    prisma.lesson.findMany({
+      where: query,
+      include: {
+        subject: { select: { name: true } },
+        class: { select: { name: true } },
+        teacher: { select: { name: true, surname: true } },
+      },
+      take: ITEM_PER_PAGE,
+      skip: ITEM_PER_PAGE * (p - 1),
+    }),
+    prisma.lesson.count({
+      where: query,
+    }),
+  ]);
+
   return (
-    <div className='flex flex-col h-screen p-3'>
-        {/* Top  */}
-        <div className="flex items-center justify-between">
+    <div className="flex flex-col h-screen p-3">
+      {/* Top  */}
+      <div className="flex items-center justify-between">
         <h1 className="hidden md:block text-lg font-semibold">All Lessons</h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
@@ -84,24 +129,21 @@ const  LessonsListPage = () => {
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-primary">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
-           
-            {role === "admin" && (
-              <FormModal table="lesson" type="create" />
-            )}
+
+            {role === "admin" && <FormModal table="lesson" type="create" />}
           </div>
         </div>
       </div>
-        {/* lists */}
-        <div className="p-2">
-          <Table columns={columns} renderRow={renderRow} data={lessonsData}/>
-        </div>
-        {/* pagination */}
-        <div className="items-center justify-center">
-          <Pagination/>
-        </div>
-      
+      {/* lists */}
+      <div className="p-2">
+        <Table columns={columns} renderRow={renderRow} data={lessons} />
+      </div>
+      {/* pagination */}
+      <div className="items-center justify-center">
+        <Pagination page={p} count={count} />
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default LessonsListPage
+export default LessonsListPage;
